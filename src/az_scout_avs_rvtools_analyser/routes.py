@@ -5,7 +5,6 @@ from __future__ import annotations
 import io
 from typing import Any
 
-import pandas as pd
 from az_scout.plugin_api import PluginError, PluginValidationError, get_plugin_logger
 from fastapi import APIRouter, UploadFile
 
@@ -63,7 +62,9 @@ async def analyze_upload(
     )
 
     try:
-        excel = pd.ExcelFile(io.BytesIO(contents))
+        import pandas
+
+        excel = pandas.ExcelFile(io.BytesIO(contents))
         logger.debug("Parsed Excel with %d sheets: %s", len(excel.sheet_names), excel.sheet_names)
     except Exception as exc:
         raise PluginValidationError(f"Cannot parse Excel file: {exc}") from exc

@@ -49,8 +49,8 @@
 }
 .rvtools-summary-card.card-total   { border-left-color: var(--bs-primary); }
 .rvtools-summary-card.card-total   .rvtools-card-value { color: var(--bs-primary); }
-.rvtools-summary-card.card-emergency { border-left-color: #212529; }
-.rvtools-summary-card.card-emergency .rvtools-card-value { color: #212529; }
+.rvtools-summary-card.card-emergency { border-left-color: #4c1d95; }
+.rvtools-summary-card.card-emergency .rvtools-card-value { color: #7c3aed; }
 .rvtools-summary-card.card-blocking  { border-left-color: #dc3545; }
 .rvtools-summary-card.card-blocking  .rvtools-card-value { color: #dc3545; }
 .rvtools-summary-card.card-warning   { border-left-color: #ffc107; }
@@ -81,7 +81,7 @@
     overflow: hidden;
     white-space: nowrap;
 }
-.rvtools-risk-bar .risk-emergency { background: #212529; }
+.rvtools-risk-bar .risk-emergency { background: #4c1d95; }
 .rvtools-risk-bar .risk-blocking  { background: #dc3545; }
 .rvtools-risk-bar .risk-warning   { background: #ffc107; color: #333; }
 .rvtools-risk-bar .risk-info      { background: #0dcaf0; color: #333; }
@@ -117,7 +117,7 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
-.rvtools-badge-emergency { background: #212529; color: #fff; }
+.rvtools-badge-emergency { background: #4c1d95; color: #fff; }
 .rvtools-badge-blocking  { background: #dc3545; color: #fff; }
 .rvtools-badge-warning   { background: #ffc107; color: #333; }
 .rvtools-badge-info      { background: #0dcaf0; color: #333; }
@@ -204,11 +204,11 @@
 
 /* ---- Dark mode tweaks ---- */
 [data-theme="dark"] .rvtools-summary-card.card-warning .rvtools-card-value { color: #ffda6a; }
-[data-theme="dark"] .rvtools-summary-card.card-emergency .rvtools-card-value { color: #adb5bd; }
-[data-theme="dark"] .rvtools-badge-emergency { background: #495057; }
+[data-theme="dark"] .rvtools-summary-card.card-emergency .rvtools-card-value { color: #8b5cf6; }
+[data-theme="dark"] .rvtools-badge-emergency { background: #3b0764; }
 
 
-[data-theme="dark"] .rvtools-risk-bar .risk-emergency { background: #495057; }
+[data-theme="dark"] .rvtools-risk-bar .risk-emergency { background: #3b0764; }
 [data-theme="dark"] .rvtools-drop-zone { border-color: var(--bs-border-color); }
 
 /* ---- AI Recommendation ---- */
