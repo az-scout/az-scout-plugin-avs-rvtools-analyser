@@ -159,7 +159,7 @@
                 return;
             }
             const segments = [
-                { key: "emergency", label: "Emergency", color: "#212529" },
+                { key: "emergency", label: "Emergency", color: "#4c1d95" },
                 { key: "blocking", label: "Blocking", color: "#dc3545" },
                 { key: "warning", label: "Warning", color: "#ffc107" },
                 { key: "info", label: "Info", color: "#0dcaf0" },

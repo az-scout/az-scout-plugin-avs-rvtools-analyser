@@ -7,10 +7,12 @@ Each risk detection function examines specific sheets and returns structured res
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import pandas as pd
 from az_scout.plugin_api import get_plugin_logger
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 logger = get_plugin_logger("avs-rvtools-analyser")
 
@@ -430,8 +432,10 @@ def detect_large_provisioned_vms(excel: pd.ExcelFile) -> dict[str, Any]:
     vinfo = _safe_sheet(excel, "vInfo")
     if vinfo is None:
         return _risk_result("detect_large_provisioned_vms", "warning", desc, alert, 0, [])
+    import pandas
+
     vinfo = vinfo.copy()
-    vinfo["Provisioned MiB"] = pd.to_numeric(vinfo["Provisioned MiB"], errors="coerce")
+    vinfo["Provisioned MiB"] = pandas.to_numeric(vinfo["Provisioned MiB"], errors="coerce")
     vinfo["Provisioned TB"] = vinfo["Provisioned MiB"] * MIB_TO_TB
     mask = vinfo["Provisioned TB"] > LARGE_VM_THRESHOLD_TB
     cols = [c for c in ["VM", "Provisioned MiB", "In Use MiB", "CPUs", "Memory"] if c in vinfo]
@@ -454,15 +458,17 @@ def detect_high_vcpu_vms(excel: pd.ExcelFile) -> dict[str, Any]:
     except FileNotFoundError:
         return _risk_result("detect_high_vcpu_vms", "blocking", desc, alert, 0, [])
 
+    import pandas
+
     vinfo = vinfo.copy()
-    vinfo["CPUs"] = pd.to_numeric(vinfo["CPUs"], errors="coerce")
+    vinfo["CPUs"] = pandas.to_numeric(vinfo["CPUs"], errors="coerce")
     sku_cores = {s["name"]: s["cores"] for s in sku_data}
     min_cores = min(sku_cores.values())
 
     rows: list[dict[str, Any]] = []
     for _, vm in vinfo.iterrows():
         cpus = vm["CPUs"]
-        if pd.notna(cpus) and cpus > min_cores:
+        if pandas.notna(cpus) and cpus > min_cores:
             entry: dict[str, Any] = {"VM": vm["VM"], "vCPU Count": int(cpus)}
             for sku, cores in sku_cores.items():
                 entry[sku] = cpus <= cores
@@ -487,14 +493,16 @@ def detect_high_memory_vms(excel: pd.ExcelFile) -> dict[str, Any]:
     except FileNotFoundError:
         return _risk_result("detect_high_memory_vms", "blocking", desc, alert, 0, [])
 
+    import pandas
+
     vinfo = vinfo.copy()
-    vinfo["Memory"] = pd.to_numeric(vinfo["Memory"], errors="coerce")
+    vinfo["Memory"] = pandas.to_numeric(vinfo["Memory"], errors="coerce")
     min_mem_mb = min(s["ram"] * 1024 for s in sku_data)
 
     rows: list[dict[str, Any]] = []
     for _, vm in vinfo.iterrows():
         mem = vm["Memory"]
-        if pd.notna(mem) and mem > min_mem_mb:
+        if pandas.notna(mem) and mem > min_mem_mb:
             entry: dict[str, Any] = {"VM": vm["VM"], "Memory (GB)": round(float(mem) / 1024, 2)}
             for s in sku_data:
                 entry[s["name"]] = mem <= s["ram"] * 1024
@@ -519,10 +527,12 @@ def detect_hw_version_compatibility(excel: pd.ExcelFile) -> dict[str, Any]:
     if "HW version" not in vinfo.columns:
         return _risk_result("detect_hw_version_compatibility", "blocking", desc, alert, 0, [])
 
+    import pandas
+
     rows: list[dict[str, Any]] = []
     for _, vm in vinfo.iterrows():
         hw = vm.get("HW version")
-        if pd.isna(hw):
+        if pandas.isna(hw):
             continue
         try:
             hw_num = int(hw)
