@@ -1,0 +1,281 @@
+/* AVS RVTools Analyser Plugin Styles */
+
+.rvtools-container {}
+
+/* ---- Sidebar ---- */
+.rvtools-sidebar {
+    position: sticky;
+    top: 1rem;
+}
+
+/* ---- Drop zone ---- */
+.rvtools-drop-zone {
+    border: 2px dashed var(--bs-border-color);
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+.rvtools-drop-zone:hover,
+.rvtools-drop-zone.drag-over {
+    border-color: var(--bs-primary);
+    background: rgba(var(--bs-primary-rgb), 0.05);
+}
+
+/* ---- Summary Cards ---- */
+.rvtools-summary-card {
+    background: var(--bs-tertiary-bg);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    text-align: center;
+    border-left: 4px solid var(--bs-secondary);
+    transition: transform 0.15s;
+}
+.rvtools-summary-card:hover { transform: translateY(-2px); }
+.rvtools-summary-card[data-jump-level] { cursor: pointer; }
+.rvtools-summary-card[data-jump-level]:active { transform: translateY(0); }
+.rvtools-summary-card .rvtools-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.rvtools-summary-card .rvtools-card-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--bs-secondary-color);
+    margin-top: 0.25rem;
+}
+.rvtools-summary-card.card-total   { border-left-color: var(--bs-primary); }
+.rvtools-summary-card.card-total   .rvtools-card-value { color: var(--bs-primary); }
+.rvtools-summary-card.card-emergency { border-left-color: #212529; }
+.rvtools-summary-card.card-emergency .rvtools-card-value { color: #212529; }
+.rvtools-summary-card.card-blocking  { border-left-color: #dc3545; }
+.rvtools-summary-card.card-blocking  .rvtools-card-value { color: #dc3545; }
+.rvtools-summary-card.card-warning   { border-left-color: #ffc107; }
+.rvtools-summary-card.card-warning   .rvtools-card-value { color: #ffc107; }
+.rvtools-summary-card.card-info      { border-left-color: #0dcaf0; }
+.rvtools-summary-card.card-info      .rvtools-card-value { color: #0dcaf0; }
+.rvtools-summary-card.card-clean     { border-left-color: #198754; }
+.rvtools-summary-card.card-clean     .rvtools-card-value { color: #198754; }
+
+/* ---- Risk Distribution Bar ---- */
+.rvtools-risk-bar {
+    display: flex;
+    height: 28px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--bs-tertiary-bg);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.12);
+}
+.rvtools-risk-bar .risk-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    min-width: 0;
+    transition: flex 0.4s ease;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.rvtools-risk-bar .risk-emergency { background: #212529; }
+.rvtools-risk-bar .risk-blocking  { background: #dc3545; }
+.rvtools-risk-bar .risk-warning   { background: #ffc107; color: #333; }
+.rvtools-risk-bar .risk-info      { background: #0dcaf0; color: #333; }
+.rvtools-risk-bar .risk-clean     { background: #198754; }
+
+.rvtools-risk-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.75rem;
+}
+.rvtools-risk-legend .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.rvtools-risk-legend .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* ---- Risk Badges ---- */
+.rvtools-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2em 0.55em;
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.rvtools-badge-emergency { background: #212529; color: #fff; }
+.rvtools-badge-blocking  { background: #dc3545; color: #fff; }
+.rvtools-badge-warning   { background: #ffc107; color: #333; }
+.rvtools-badge-info      { background: #0dcaf0; color: #333; }
+.rvtools-badge-clean     { background: #198754; color: #fff; }
+
+/* ---- Risk accordion cards ---- */
+.rvtools-risk-card {
+    border: none;
+    border-left: 4px solid var(--bs-secondary);
+    border-radius: 0.5rem !important;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+}
+.rvtools-risk-card.risk-emergency { border-left-color: #212529; }
+.rvtools-risk-card.risk-blocking  { border-left-color: #dc3545; }
+.rvtools-risk-card.risk-warning   { border-left-color: #ffc107; }
+.rvtools-risk-card.risk-info      { border-left-color: #0dcaf0; }
+.rvtools-risk-card.risk-clean     { border-left-color: #198754; }
+
+.rvtools-risk-card .accordion-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    background: var(--bs-tertiary-bg);
+}
+.rvtools-risk-card .accordion-button:not(.collapsed) {
+    background: var(--bs-tertiary-bg);
+    box-shadow: none;
+}
+.rvtools-risk-card .accordion-button::after {
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+}
+.rvtools-risk-card .rvtools-issue-count {
+    min-width: 6rem;
+    text-align: right;
+    flex-shrink: 0;
+}
+.rvtools-risk-card .accordion-body {
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+}
+
+/* ---- Data tables inside risk cards ---- */
+.rvtools-data-table {
+    width: 100%;
+    font-size: 0.78rem;
+    margin-top: 0.5rem;
+}
+.rvtools-data-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--bs-body-bg);
+    border-bottom: 2px solid var(--bs-border-color);
+    padding: 0.35rem 0.5rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.rvtools-data-table tbody td {
+    padding: 0.3rem 0.5rem;
+    border-bottom: 1px solid var(--bs-border-color);
+    white-space: nowrap;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.rvtools-data-table tbody tr:hover {
+    background: var(--bs-tertiary-bg);
+}
+.rvtools-data-table-wrapper {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.25rem;
+}
+
+/* ---- Alert message inside cards ---- */
+.rvtools-alert-message {
+    background: rgba(var(--bs-warning-rgb), 0.1);
+    border-radius: 0.35rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+/* ---- Dark mode tweaks ---- */
+[data-theme="dark"] .rvtools-summary-card.card-warning .rvtools-card-value { color: #ffda6a; }
+[data-theme="dark"] .rvtools-summary-card.card-emergency .rvtools-card-value { color: #adb5bd; }
+[data-theme="dark"] .rvtools-badge-emergency { background: #495057; }
+
+
+[data-theme="dark"] .rvtools-risk-bar .risk-emergency { background: #495057; }
+[data-theme="dark"] .rvtools-drop-zone { border-color: var(--bs-border-color); }
+
+/* ---- AI Recommendation ---- */
+.rvtools-ai-btn {
+    border-style: dashed;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 1rem;
+}
+.rvtools-ai-btn:hover {
+    border-style: solid;
+}
+.rvtools-ai-output {
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+.rvtools-ai-output h1,
+.rvtools-ai-output h2,
+.rvtools-ai-output h3,
+.rvtools-ai-output h4,
+.rvtools-ai-output h5,
+.rvtools-ai-output h6 {
+    color: var(--bs-primary);
+    margin-top: 1rem;
+    margin-bottom: 0.35rem;
+    font-size: 1rem;
+}
+.rvtools-ai-output h1,
+.rvtools-ai-output h2 { font-size: 1.05rem; }
+.rvtools-ai-output ul,
+.rvtools-ai-output ol {
+    padding-left: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+.rvtools-ai-output li { margin-bottom: 0.2rem; }
+.rvtools-ai-output p { margin-bottom: 0.5rem; }
+.rvtools-ai-output pre {
+    background: var(--bs-tertiary-bg);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.35rem;
+    font-size: 0.8rem;
+    overflow-x: auto;
+    margin-bottom: 0.5rem;
+}
+.rvtools-ai-output code {
+    font-size: 0.82em;
+}
+.rvtools-ai-output pre code {
+    background: none;
+    padding: 0;
+}
+.rvtools-ai-output blockquote {
+    border-left: 3px solid var(--bs-border-color);
+    padding-left: 0.75rem;
+    color: var(--bs-secondary-color);
+    margin: 0.5rem 0;
+}
+.rvtools-ai-output table {
+    width: 100%;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+.rvtools-ai-output th,
+.rvtools-ai-output td {
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--bs-border-color);
+}
+.rvtools-ai-output hr {
+    margin: 0.75rem 0;
+}

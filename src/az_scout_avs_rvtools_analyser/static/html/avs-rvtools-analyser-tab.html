@@ -1,0 +1,130 @@
+<div class="rvtools-container">
+    <p class="text-body-secondary small mb-3">
+        <i class="bi bi-info-circle text-info"></i>
+        Upload an <strong>RVTools</strong> Excel export (.xlsx) to analyse migration risks for
+        <strong>Azure VMware Solution</strong>. The file is processed in memory only and never stored.
+        <a href="https://www.robware.net/rvtools/" target="_blank" rel="noopener">About RVTools <i class="bi bi-box-arrow-up-right"></i></a>
+    </p>
+    <div class="row">
+        <!-- Left sidebar: upload controls -->
+        <div class="col-md-3 col-xl-2">
+            <div class="rvtools-sidebar">
+                <label class="form-label form-label-sm mb-1">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> RVTools File
+                </label>
+                <div id="rvtools-drop-zone" class="rvtools-drop-zone mb-2">
+                    <i class="bi bi-cloud-arrow-up" style="font-size:1.5rem;color:var(--bs-secondary)"></i>
+                    <p class="small text-body-secondary mb-0 mt-1">Drop .xlsx here</p>
+                    <p class="small text-body-secondary mb-0">or click to browse</p>
+                    <input type="file" id="rvtools-file-input" accept=".xlsx,.xls" class="d-none">
+                </div>
+                <div id="rvtools-file-info" class="small text-body-secondary mb-2" style="display:none">
+                    <i class="bi bi-file-earmark-check text-success"></i>
+                    <span id="rvtools-file-name"></span>
+                    <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-danger" id="rvtools-clear-file"
+                            title="Clear file"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" id="rvtools-exclude-off">
+                    <label class="form-check-label small" for="rvtools-exclude-off">
+                        Exclude powered-off VMs
+                    </label>
+                </div>
+                <button class="btn btn-primary btn-sm w-100" id="rvtools-analyze-btn" disabled>
+                    <i class="bi bi-shield-exclamation"></i> Analyse Risks
+                </button>
+            </div>
+        </div>
+
+        <!-- Right: results -->
+        <div class="col-md-9 col-xl-10">
+            <!-- Progress bar -->
+            <div id="rvtools-progress" class="mb-3" style="display:none">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <small class="text-body-secondary" id="rvtools-progress-label">Analysing…</small>
+                </div>
+                <div class="progress" style="height:6px">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                         id="rvtools-progress-bar" role="progressbar" style="width:0%"></div>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div id="rvtools-empty" class="text-center py-5">
+                <i class="bi bi-file-earmark-spreadsheet" style="font-size:3rem;color:var(--bs-secondary)"></i>
+                <p class="text-body-secondary mt-2">Upload an RVTools export and click <strong>Analyse Risks</strong>.</p>
+            </div>
+
+            <!-- Error alert -->
+            <div id="rvtools-error" class="alert alert-danger" style="display:none" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i> <span id="rvtools-error-msg"></span>
+            </div>
+
+            <!-- Results -->
+            <div id="rvtools-results" style="display:none">
+                <!-- File info -->
+                <div class="mb-3 small text-body-secondary" id="rvtools-result-meta"></div>
+
+                <!-- Summary cards row -->
+                <div class="row g-3 mb-4" id="rvtools-summary-cards"></div>
+
+                <!-- Risk distribution gauge -->
+                <div class="mb-4">
+                    <h6 class="text-body-secondary mb-2"><i class="bi bi-speedometer2"></i> Risk Distribution</h6>
+                    <div id="rvtools-risk-bar" class="rvtools-risk-bar"></div>
+                    <div id="rvtools-risk-legend" class="rvtools-risk-legend mt-2"></div>
+                </div>
+
+                <!-- Risk filter & export -->
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h6 class="text-body-secondary mb-0"><i class="bi bi-list-check"></i> Risk Details</h6>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" id="rvtools-export-csv" title="Export all data as CSV">
+                            <i class="bi bi-download"></i> CSV
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="rvtools-print-btn" title="Print / Save as PDF">
+                            <i class="bi bi-printer"></i> Print
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Risk cards accordion -->
+                <div class="accordion" id="rvtools-risk-accordion"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Recommendation Modal -->
+    <div class="modal fade" id="rvtools-ai-modal" tabindex="-1" aria-labelledby="rvtools-ai-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="rvtools-ai-modal-title">
+                        <i class="bi bi-stars text-primary"></i> AI Recommendation
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="rvtools-ai-modal-body">
+                    <div id="rvtools-ai-loading" class="text-center py-4">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <p class="small text-body-secondary mt-2">Generating AI recommendation…</p>
+                    </div>
+                    <div id="rvtools-ai-content" style="display:none"></div>
+                    <div id="rvtools-ai-error" class="alert alert-warning" style="display:none">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span id="rvtools-ai-error-msg"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <small class="text-body-secondary me-auto">
+                        <i class="bi bi-info-circle"></i> AI suggestions may be inaccurate. Review carefully.
+                    </small>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="rvtools-ai-refresh-btn" title="Regenerate (bypass cache)">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

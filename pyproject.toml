@@ -1,0 +1,68 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "az-scout-plugin-avs-rvtools-analyser"
+dynamic = ["version"]
+description = "az-scout plugin for AVS migration risk analysis from RVTools exports"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [
+    { name = "Ludovic Rivallain" },
+]
+keywords = ["azure", "avs", "vmware", "rvtools", "migration", "risk-analysis", "az-scout", "plugin"]
+dependencies = [
+    "az-scout",
+    "az-scout-plugin-avs-sku",
+    "fastapi",
+    "pandas>=2.0",
+    "openpyxl>=3.1",
+    "python-multipart>=0.0.9",
+]
+
+[project.urls]
+Homepage = "https://github.com/az-scout/az-scout-plugin-avs-rvtools-analyser"
+Repository = "https://github.com/az-scout/az-scout-plugin-avs-rvtools-analyser"
+Issues = "https://github.com/az-scout/az-scout-plugin-avs-rvtools-analyser/issues"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0",
+    "pytest-cov>=6.0",
+    "ruff>=0.11",
+    "mypy>=1.15",
+    "httpx>=0.28",
+    "pandas-stubs>=3.0.0.260204",
+]
+
+[project.entry-points."az_scout.plugins"]
+avs_rvtools_analyser = "az_scout_avs_rvtools_analyser:plugin"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/az_scout_avs_rvtools_analyser"]
+
+[tool.hatch.version]
+source = "vcs"
+raw-options.version_scheme = "guess-next-dev"
+raw-options.local_scheme = "no-local-version"
+raw-options.fallback_version = "0.1.0"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/az_scout_avs_rvtools_analyser/_version.py"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = ["src/az_scout_avs_rvtools_analyser/_version.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
