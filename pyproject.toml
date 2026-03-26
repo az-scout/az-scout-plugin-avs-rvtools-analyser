@@ -14,8 +14,8 @@ authors = [
 ]
 keywords = ["azure", "avs", "vmware", "rvtools", "migration", "risk-analysis", "az-scout", "plugin"]
 dependencies = [
-    "az-scout",
-    "az-scout-plugin-avs-sku",
+    "az-scout>=2026.3.7",
+    "az-scout-plugin-avs-sku>=2026.3.5",
     "fastapi",
     "pandas>=2.0",
     "openpyxl>=3.1",
