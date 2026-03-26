@@ -12,7 +12,7 @@ from importlib.metadata import version as _pkg_version
 from pathlib import Path
 from typing import Any
 
-from az_scout.plugin_api import TabDefinition
+from az_scout.plugin_api import ChatMode, TabDefinition
 from fastapi import APIRouter
 
 _STATIC_DIR = Path(__file__).parent / "static"
@@ -56,7 +56,7 @@ class AvsRvtoolsAnalyserPlugin:
             )
         ]
 
-    def get_chat_modes(self) -> None:
+    def get_chat_modes(self) -> list[ChatMode] | None:
         return None
 
     def get_system_prompt_addendum(self) -> str | None:
