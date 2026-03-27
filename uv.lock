@@ -52,7 +52,7 @@ wheels = [
 
 [[package]]
 name = "az-scout"
-version = "2026.3.6"
+version = "2026.3.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "azure-identity" },
@@ -61,14 +61,15 @@ dependencies = [
     { name = "httpx" },
     { name = "jinja2" },
     { name = "mcp", extra = ["cli"] },
+    { name = "msal" },
     { name = "prompt-toolkit" },
     { name = "requests" },
     { name = "rich" },
     { name = "uvicorn", extra = ["standard"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9f/c9/a1bcbddd8f0cb53b2c64a8270fc86de5514d434959249dd98fbe2b94d745/az_scout-2026.3.6.tar.gz", hash = "sha256:364c1a5caedac1f1f9cdb7e40d593271dc55eeb48071ee1ae490f6639417a9d6", size = 1316690, upload-time = "2026-03-12T10:43:06.173Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2b/d9/252439c165e77c1355a6c30817445da18a6f662fd3ca7bf6d1109c0327f4/az_scout-2026.3.7.tar.gz", hash = "sha256:b6a5c65c5aa222fded4402d0f677769d93a8f71f4eb1ecb73d77709e5e323f38", size = 1346184, upload-time = "2026-03-26T12:09:33.362Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/42/91/b5de3da48326e785863cf144c40343bc30b604ff2e17a1735fede3df6570/az_scout-2026.3.6-py3-none-any.whl", hash = "sha256:af1f013b8f90b529ac3b7e9979d3c2a5b7bbbe3fc280954c63605b28480315e0", size = 171517, upload-time = "2026-03-12T10:43:04.17Z" },
+    { url = "https://files.pythonhosted.org/packages/be/57/f17dd5b00930291004677484b15a75a5489769e26df303a338b9311510c1/az_scout-2026.3.7-py3-none-any.whl", hash = "sha256:a4843147d0b16d50057f49955352bed66c9b48e4eac22a2c38cf6a007b029ed8", size = 195240, upload-time = "2026-03-26T12:09:31.677Z" },
 ]
 
 [[package]]
@@ -95,8 +96,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "az-scout" },
-    { name = "az-scout-plugin-avs-sku" },
+    { name = "az-scout", specifier = ">=2026.3.7" },
+    { name = "az-scout-plugin-avs-sku", specifier = ">=2026.3.5" },
     { name = "fastapi" },
     { name = "openpyxl", specifier = ">=3.1" },
     { name = "pandas", specifier = ">=2.0" },
@@ -115,16 +116,16 @@ dev = [
 
 [[package]]
 name = "az-scout-plugin-avs-sku"
-version = "2026.3.4"
+version = "2026.3.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "az-scout" },
     { name = "fastapi" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/37/ef/2606b213acf05a544ad7eabf7ecb67e9a95dd47c77ca100f277ac4f11fac/az_scout_plugin_avs_sku-2026.3.4.tar.gz", hash = "sha256:43041245e4810a9c3b7a9cc0e3d8091104725ff3f596497d098bb7725884cd99", size = 125085, upload-time = "2026-03-26T07:28:38.205Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/43/3a/669939ed23e297e46bb5b3b94ff26c2999bf51c62997cfd0812b52628ec4/az_scout_plugin_avs_sku-2026.3.5.tar.gz", hash = "sha256:a03cc078e1c68d6ade0edbdbb185481ecfb553cf92562841d397918c28acfaa7", size = 126750, upload-time = "2026-03-26T13:50:07.561Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c3/15/8902008801fcf775c10d7be94cae61296df370f4b49479221dc49748dc83/az_scout_plugin_avs_sku-2026.3.4-py3-none-any.whl", hash = "sha256:7292a5e2130d6cb93d0655ca9c23680f6fb8719bd8f6aeb925689ca501c2a370", size = 18115, upload-time = "2026-03-26T07:28:36.95Z" },
+    { url = "https://files.pythonhosted.org/packages/c6/fd/57747762b72f89a5bbc68d45e96cf26869e2c8c577775f82b2991b1d92e3/az_scout_plugin_avs_sku-2026.3.5-py3-none-any.whl", hash = "sha256:a01440fd61cc767bba022d5c5769ee1273f09b13e114649942df5836a46a0172", size = 19695, upload-time = "2026-03-26T13:50:06.404Z" },
 ]
 
 [[package]]

@@ -9,12 +9,10 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, Any
 
-from az_scout.plugin_api import get_plugin_logger
+from az_scout_avs_rvtools_analyser._log import logger
 
 if TYPE_CHECKING:
     import pandas as pd
-
-logger = get_plugin_logger("avs-rvtools-analyser")
 
 # ---------------------------------------------------------------------------
 # Constants

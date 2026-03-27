@@ -5,15 +5,15 @@ from __future__ import annotations
 import io
 from typing import Any
 
-from az_scout.plugin_api import PluginError, PluginValidationError, get_plugin_logger
+from az_scout.plugin_api import PluginError, PluginValidationError
 from fastapi import APIRouter, UploadFile
 
+from az_scout_avs_rvtools_analyser._log import logger
 from az_scout_avs_rvtools_analyser.risk_analysis import (
     gather_all_risks,
     get_available_risks,
 )
 
-logger = get_plugin_logger("avs-rvtools-analyser")
 router = APIRouter()
 
 _ALLOWED_EXT = {".xlsx", ".xls"}
