@@ -17,6 +17,7 @@ dependencies = [
     "az-scout>=2026.3.7",
     "az-scout-plugin-avs-sku>=2026.3.5",
     "fastapi",
+    "numpy>=1.26",
     "pandas>=2.0",
     "openpyxl>=3.1",
     "python-multipart>=0.0.9",
