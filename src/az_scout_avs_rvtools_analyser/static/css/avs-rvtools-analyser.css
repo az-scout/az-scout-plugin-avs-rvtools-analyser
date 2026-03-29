@@ -279,3 +279,66 @@
 .rvtools-ai-output hr {
     margin: 0.75rem 0;
 }
+
+/* ---- Statistics ---- */
+.rvtools-stat-panel {
+    background: var(--bs-tertiary-bg);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    height: 100%;
+}
+.rvtools-stat-card {
+    background: var(--bs-tertiary-bg);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    border-left: 4px solid var(--bs-secondary);
+}
+.rvtools-stat-card-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--bs-body-color);
+}
+.rvtools-stat-card-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--bs-secondary-color);
+    margin-top: 0.2rem;
+}
+.rvtools-stat-card-total    { border-left-color: var(--bs-body-color); }
+.rvtools-stat-card-primary  { border-left-color: var(--bs-primary); }
+.rvtools-stat-card-primary .rvtools-stat-card-value { color: var(--bs-primary); }
+.rvtools-stat-card-info     { border-left-color: #0dcaf0; }
+.rvtools-stat-card-info .rvtools-stat-card-value { color: #0dcaf0; }
+.rvtools-stat-card-secondary { border-left-color: var(--bs-secondary); }
+.rvtools-stat-card-compact .rvtools-stat-card-value {
+    font-size: 1.25rem;
+}
+.rvtools-stat-card-compact .rvtools-stat-card-label {
+    font-size: 0.65rem;
+}
+.rvtools-stat-card-compact {
+    padding: 0.5rem 0.75rem;
+}
+.rvtools-stat-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+}
+
+#rvtools-result-tabs .nav-link {
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+}
+.rvtools-stat-section-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--bs-secondary-color);
+    border-bottom: 1px solid var(--bs-border-color);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.75rem;
+}

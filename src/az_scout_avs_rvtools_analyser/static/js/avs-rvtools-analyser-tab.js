@@ -29,6 +29,7 @@
 
         let selectedFile = null;
         let analysisData = null;
+        let statsData = null;
 
         // --- File selection -------------------------------------------------
         dropZone.addEventListener("click", () => fileInput.click());
@@ -75,28 +76,46 @@
             progLabel.textContent = "Uploading file…";
             analyzeBtn.disabled = true;
 
-            const form = new FormData();
-            form.append("file", selectedFile);
+            const riskForm = new FormData();
+            riskForm.append("file", selectedFile);
+            const statsForm = new FormData();
+            statsForm.append("file", selectedFile);
 
             const params = new URLSearchParams();
             if (excludeOff.checked) params.set("exclude_powered_off", "true");
 
             try {
-                progBar.style.width = "50%";
-                progLabel.textContent = "Analysing risks…";
+                progBar.style.width = "40%";
+                progLabel.textContent = "Analysing risks & extracting statistics…";
 
-                const url = `/plugins/${PLUGIN}/analyze-upload` + (params.toString() ? "?" + params : "");
-                const resp = await fetch(url, { method: "POST", body: form });
-                if (!resp.ok) {
-                    const err = await resp.json().catch(() => ({}));
-                    throw new Error(err.detail || err.error || `HTTP ${resp.status}`);
+                const riskUrl = `/plugins/${PLUGIN}/analyze-upload` + (params.toString() ? "?" + params : "");
+                const statsUrl = `/plugins/${PLUGIN}/stats-upload` + (params.toString() ? "?" + params : "");
+
+                const [riskResp, statsResp] = await Promise.all([
+                    fetch(riskUrl, { method: "POST", body: riskForm }),
+                    fetch(statsUrl, { method: "POST", body: statsForm }),
+                ]);
+
+                if (!riskResp.ok) {
+                    const err = await riskResp.json().catch(() => ({}));
+                    throw new Error(err.detail || err.error || `HTTP ${riskResp.status}`);
                 }
 
-                progBar.style.width = "90%";
+                progBar.style.width = "80%";
                 progLabel.textContent = "Rendering results…";
 
-                analysisData = await resp.json();
+                analysisData = await riskResp.json();
                 renderResults(analysisData);
+
+                if (statsResp.ok) {
+                    statsData = await statsResp.json();
+                    renderStatistics(statsData);
+                } else {
+                    document.getElementById("rvtools-stats-loading").style.display = "none";
+                    const sc = document.getElementById("rvtools-stats-content");
+                    sc.style.display = "";
+                    sc.innerHTML = '<div class="alert alert-warning"><i class="bi bi-exclamation-triangle"></i> Statistics extraction failed.</div>';
+                }
 
                 progBar.style.width = "100%";
                 setTimeout(() => { progress.style.display = "none"; }, 400);
@@ -203,6 +222,10 @@
                     ? `<button class="btn btn-outline-primary btn-sm rvtools-ai-btn" data-risk-key="${escHtml(key)}" title="Get AI recommendation"><i class="bi bi-stars"></i> AI Recommendation</button>`
                     : "";
 
+                const csvBtn = risk.count > 0
+                    ? `<button class="btn btn-outline-secondary btn-sm rvtools-csv-btn" data-risk-key="${escHtml(key)}" title="Export as CSV"><i class="bi bi-download"></i> CSV</button>`
+                    : "";
+
                 return `
                 <div class="accordion-item rvtools-risk-card risk-${level}" data-risk-level="${level}">
                     <h2 class="accordion-header">
@@ -217,7 +240,7 @@
                         <div class="accordion-body">
                             <div class="d-flex align-items-start justify-content-between mb-1">
                                 <p class="small text-body-secondary mb-0">${escHtml(risk.risk_info?.description || "")}</p>
-                                ${aiBtn}
+                                <div class="d-flex gap-1 flex-shrink-0 ms-2">${csvBtn}${aiBtn}</div>
                             </div>
                             ${alertMsg ? `<div class="rvtools-alert-message">${alertMsg}</div>` : ""}
                             ${dataHtml}
@@ -225,6 +248,193 @@
                     </div>
                 </div>`;
             }).join("");
+        }
+
+        // --- Statistics renderer --------------------------------------------
+        function renderStatistics(data) {
+            const loading = document.getElementById("rvtools-stats-loading");
+            const content = document.getElementById("rvtools-stats-content");
+            loading.style.display = "none";
+            content.style.display = "";
+
+            const vms = data.vms || {};
+            const compute = data.compute || {};
+            const storage = data.storage || {};
+            const hosts = data.hosts || {};
+            const ds = data.datastores || {};
+            const osDist = data.os_distribution || [];
+
+            const fmtNum = (n) => (n || 0).toLocaleString();
+            const fmtGb = (n) => (n || 0).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+            // VM power state
+            const vmOn = vms.powered_on || 0;
+            const vmOff = vms.powered_off || 0;
+            const vmSusp = vms.suspended || 0;
+            const vmTotal = vms.total || 0;
+            const vmParts = [
+                { label: "Powered On", value: vmOn, color: "#198754" },
+                { label: "Powered Off", value: vmOff, color: "#6c757d" },
+                { label: "Suspended", value: vmSusp, color: "#ffc107" },
+            ].filter(p => p.value > 0);
+
+            // VM storage usage
+            const vmProv = storage.provisioned_gb || 0;
+            const vmUsed = storage.in_use_gb || 0;
+            const vmStorePct = vmProv > 0 ? (vmUsed / vmProv * 100).toFixed(1) : 0;
+
+            // Host usage
+            const cpuPct = hosts.avg_cpu_usage_pct || 0;
+            const memPct = hosts.avg_memory_usage_pct || 0;
+
+            // Datastore usage
+            const dsCapacity = ds.total_capacity_gb || 0;
+            const dsUsed = ds.total_in_use_gb || 0;
+            const dsUsedPct = dsCapacity > 0 ? (dsUsed / dsCapacity * 100).toFixed(1) : 0;
+
+            content.innerHTML = `
+                <!-- ═══ Virtual Machines ═══ -->
+                <h6 class="rvtools-stat-section-title"><i class="bi bi-pc-display"></i> Virtual Machines</h6>
+                <div class="row g-4 mb-4 align-items-start">
+                    <!-- Left: metric cards + Power State + VM Storage -->
+                    <div class="col-md-4 d-flex flex-column gap-3">
+                        <div class="row g-2">
+                            ${statCardHalf("bi-pc-display", "Total VMs", fmtNum(vmTotal), "total")}
+                            ${statCardHalf("bi-cpu", "vCPUs", fmtNum(compute.total_vcpus), "primary")}
+                            ${statCardHalf("bi-memory", "Memory", fmtGb(compute.total_memory_gb) + " GB", "info")}
+                            ${statCardHalf("bi-disc", "Disks", fmtNum(storage.disk_count), "secondary")}
+                        </div>
+                        <div class="rvtools-stat-panel">
+                            <h6 class="text-body-secondary mb-3"><i class="bi bi-toggles"></i> Power State</h6>
+                            ${renderMiniBar(vmParts, vmTotal)}
+                            <div class="rvtools-stat-legend mt-2">
+                                ${vmParts.map(p => `<span class="legend-item"><span class="legend-dot" style="background:${p.color}"></span>${p.label}: ${fmtNum(p.value)}</span>`).join("")}
+                            </div>
+                        </div>
+                        <div class="rvtools-stat-panel">
+                            <h6 class="text-body-secondary mb-3"><i class="bi bi-device-hdd"></i> VM Storage</h6>
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>Provisioned</span>
+                                <strong>${fmtGb(vmProv)} GB</strong>
+                            </div>
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>In Use</span>
+                                <strong>${fmtGb(vmUsed)} GB (${vmStorePct}%)</strong>
+                            </div>
+                            <div class="progress mt-1" style="height:6px">
+                                <div class="progress-bar ${vmStorePct > 80 ? 'bg-danger' : vmStorePct > 60 ? 'bg-warning' : 'bg-success'}"
+                                     style="width:${Math.min(vmStorePct, 100)}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OS Distribution (wider) -->
+                    <div class="col-md-8">
+                        <div class="rvtools-stat-panel h-100">
+                            <h6 class="text-body-secondary mb-3"><i class="bi bi-windows"></i> OS Distribution</h6>
+                            ${renderOsTable(osDist, vmTotal)}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ Infrastructure ═══ -->
+                <h6 class="rvtools-stat-section-title"><i class="bi bi-hdd-rack"></i> Infrastructure</h6>
+                <div class="row g-3 mb-3">
+                    ${statCard("bi-hdd-rack", "ESXi Hosts", fmtNum(hosts.count), "secondary")}
+                    ${statCard("bi-database", "Datastores", fmtNum(ds.count), "secondary")}
+                </div>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="rvtools-stat-panel">
+                            <h6 class="text-body-secondary mb-3"><i class="bi bi-speedometer"></i> Avg. Host Usage</h6>
+                            ${renderUsageGauge("CPU", cpuPct)}
+                            ${renderUsageGauge("Memory", memPct)}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="rvtools-stat-panel">
+                            <h6 class="text-body-secondary mb-3"><i class="bi bi-database"></i> Datastore Storage</h6>
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>Capacity</span>
+                                <strong>${fmtGb(dsCapacity)} GB</strong>
+                            </div>
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>In Use</span>
+                                <strong>${fmtGb(dsUsed)} GB (${dsUsedPct}%)</strong>
+                            </div>
+                            <div class="progress mt-1" style="height:6px">
+                                <div class="progress-bar ${dsUsedPct > 80 ? 'bg-danger' : dsUsedPct > 60 ? 'bg-warning' : 'bg-success'}"
+                                     style="width:${Math.min(dsUsedPct, 100)}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function statCard(icon, label, value, colorClass) {
+            return `
+                <div class="col-6 col-sm-4 col-xl-2">
+                    <div class="rvtools-stat-card rvtools-stat-card-${colorClass}">
+                        <div class="rvtools-stat-card-value">${value}</div>
+                        <div class="rvtools-stat-card-label"><i class="bi ${icon}"></i> ${label}</div>
+                    </div>
+                </div>`;
+        }
+
+        function statCardHalf(icon, label, value, colorClass) {
+            return `
+                <div class="col-6">
+                    <div class="rvtools-stat-card rvtools-stat-card-${colorClass} rvtools-stat-card-compact">
+                        <div class="rvtools-stat-card-value">${value}</div>
+                        <div class="rvtools-stat-card-label"><i class="bi ${icon}"></i> ${label}</div>
+                    </div>
+                </div>`;
+        }
+
+        function renderMiniBar(parts, total) {
+            if (total === 0) return '<div class="text-body-secondary small">No VMs</div>';
+            return `<div class="rvtools-risk-bar">${parts.map(p => {
+                const pct = (p.value / total * 100).toFixed(1);
+                return `<div class="risk-segment" style="flex:${p.value};background:${p.color}" title="${p.label}: ${p.value} (${pct}%)">${pct > 10 ? p.value : ""}</div>`;
+            }).join("")}</div>`;
+        }
+
+        function renderUsageGauge(label, pct) {
+            const color = pct > 80 ? "bg-danger" : pct > 60 ? "bg-warning" : "bg-success";
+            return `
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>${label}</span>
+                        <strong>${pct}%</strong>
+                    </div>
+                    <div class="progress" style="height:6px">
+                        <div class="progress-bar ${color}" style="width:${Math.min(pct, 100)}%"></div>
+                    </div>
+                </div>`;
+        }
+
+        function renderOsTable(osDist, vmTotal) {
+            if (!osDist.length) return '<p class="text-body-secondary small">No OS data available.</p>';
+            const rows = osDist.map(item => {
+                const pct = vmTotal > 0 ? (item.count / vmTotal * 100).toFixed(1) : 0;
+                return `<tr>
+                    <td>${escHtml(item.os)}</td>
+                    <td class="text-end">${item.count}</td>
+                    <td class="text-end">${pct}%</td>
+                    <td style="width:40%">
+                        <div class="progress" style="height:6px">
+                            <div class="progress-bar bg-primary" style="width:${pct}%"></div>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join("");
+            return `<div class="rvtools-data-table-wrapper" style="max-height:350px">
+                <table class="rvtools-data-table">
+                    <thead><tr><th>OS</th><th class="text-end">Count</th><th class="text-end">%</th><th>Distribution</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
         }
 
         // --- Data table renderer --------------------------------------------
@@ -382,6 +592,34 @@
             // Clone results and force all accordion panels open
             const clone = results.cloneNode(true);
             clone.style.display = "";
+
+            // Remove tab navigation — show both panes inline
+            const tabNav = clone.querySelector("#rvtools-result-tabs");
+            if (tabNav) tabNav.remove();
+            clone.querySelectorAll(".tab-pane").forEach(pane => {
+                pane.classList.add("show", "active");
+                pane.style.display = "";
+                pane.style.opacity = "1";
+            });
+            // Hide stats loading spinner if present
+            const statsLoading = clone.querySelector("#rvtools-stats-loading");
+            if (statsLoading) statsLoading.style.display = "none";
+            const statsContent = clone.querySelector("#rvtools-stats-content");
+            if (statsContent) statsContent.style.display = "";
+
+            // Add a section separator before stats (starts new page in print)
+            const statsPane = clone.querySelector("#rvtools-pane-stats");
+            if (statsPane) {
+                statsPane.style.breakBefore = "page";
+                statsPane.insertAdjacentHTML("beforebegin",
+                    '<h5 class="mb-3"><i class="bi bi-bar-chart-line"></i> Statistics</h5>');
+            }
+
+            // Hide action buttons (CSV, Print, AI Recommendation)
+            clone.querySelectorAll(".rvtools-csv-btn, #rvtools-print-btn, .rvtools-ai-btn").forEach(el => {
+                el.style.display = "none";
+            });
+
             // Show all risk cards (override any active filter)
             clone.querySelectorAll(".rvtools-risk-card").forEach(c => { c.style.display = ""; });
             // Expand all accordion bodies
@@ -422,7 +660,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>AVS Migration Risk Analysis</title>
+<title>AVS Migration Risk Analysis &amp; Statistics</title>
 ${mainStyles}
 ${iconStyles}
 <link rel="stylesheet" href="${pluginCssUrl}">
@@ -433,17 +671,15 @@ ${iconStyles}
   .print-header p { font-size: 0.8rem; color: #6c757d; margin: 0.25rem 0 0; }
   .accordion-button::after { display: none !important; }
   .rvtools-data-table-wrapper { max-height: none !important; overflow: visible !important; }
+  .rvtools-stat-panel { break-inside: avoid; page-break-inside: avoid; }
   @media print {
     body { padding: 0; }
     .rvtools-risk-card { break-inside: avoid; page-break-inside: avoid; }
+    #rvtools-pane-stats { break-before: page; page-break-before: always; }
   }
 </style>
 </head>
 <body>
-<div class="print-header">
-  <h1><i class="bi bi-shield-exclamation"></i> AVS Migration Risk Analysis</h1>
-  <p>File: ${escHtml(filename)} &mdash; Generated: ${escHtml(now)}</p>
-</div>
 ${clone.outerHTML}
 <script>window.onload = function() { window.print(); }<\/script>
 </body>
@@ -458,19 +694,24 @@ ${clone.outerHTML}
             printWin.document.close();
         }
 
-        // --- CSV export -----------------------------------------------------
-        document.getElementById("rvtools-export-csv").addEventListener("click", () => {
-            if (!analysisData) return;
-            const rows = [["Risk Check", "Level", "Count", "Description"]];
-            for (const [key, risk] of Object.entries(analysisData.risks)) {
-                const display = key.replace("detect_", "").replace(/_/g, " ");
-                rows.push([display, risk.risk_level, risk.count, risk.risk_info?.description || ""]);
+        // --- CSV export (per risk) ------------------------------------------
+        document.getElementById("rvtools-risk-accordion").addEventListener("click", (e) => {
+            const btn = e.target.closest(".rvtools-csv-btn");
+            if (!btn || !analysisData) return;
+            const riskKey = btn.dataset.riskKey;
+            const risk = analysisData.risks[riskKey];
+            if (!risk || !risk.data || !risk.data.length) return;
+            const cols = Object.keys(risk.data[0]);
+            const rows = [cols];
+            for (const row of risk.data) {
+                rows.push(cols.map(c => String(row[c] ?? "")));
             }
-            const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+            const csv = rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
             const blob = new Blob([csv], { type: "text/csv" });
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
-            a.download = "avs-migration-risks.csv";
+            const display = riskKey.replace("detect_", "").replace(/_/g, "-");
+            a.download = `avs-risk-${display}.csv`;
             a.click();
             URL.revokeObjectURL(a.href);
         });

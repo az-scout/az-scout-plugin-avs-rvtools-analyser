@@ -12,16 +12,25 @@ project — focused on migration risk analysis only.
 - **19 risk detection checks** covering vUSB, risky disks, network switches,
   ESX versions, hardware versions, shared disks, clear-text passwords,
   Oracle VMs, Fault Tolerance, VMkernel networks, and more
+- **Infrastructure statistics** — VM counts (on/off/suspended), total vCPUs,
+  memory, provisioned & used storage, disk count, ESXi host count with
+  average CPU/memory usage, datastore capacity/usage, and OS distribution
+- **Tabbed results UI** — Migration Risks tab + Statistics tab, both populated
+  from a single file upload (two parallel API calls)
 - **File upload UI** with drag-and-drop, progress bar, risk summary cards,
   risk distribution gauge, and expandable risk detail cards with data tables
-- **Option to exclude powered-off VMs** from analysis
+- **Option to exclude powered-off VMs** from both risk analysis and statistics
 - **Password redaction** — clear-text passwords in annotations/snapshots are
   automatically redacted from results
-- **CSV export** of risk summary and **print / PDF** support
+- **Per-risk CSV export** and **print / PDF** support (both tabs printed together)
 - **AI recommendations** — per-risk AI-powered guidance with remediation steps
   and references (requires AI to be enabled on the az-scout instance)
-- **MCP tools** for programmatic analysis (`list_avs_migration_risks`,
-  `analyze_rvtools_json`)
+- **MCP tools** for programmatic analysis:
+  - `list_avs_migration_risks` — list available risk checks
+  - `convert_rvtools_excel_to_json` — convert a local RVTools file to compact
+    JSON (only relevant sheets/columns, validated via vMetaData)
+  - `analyze_rvtools_json` — run migration risk analysis on JSON data
+  - `analyze_rvtools_statistics` — extract infrastructure statistics from JSON data
 
 ## Risk Levels
 
@@ -54,8 +63,8 @@ uv run python tools/create_test_data.py                      # → comprehensive
 uv run python tools/create_test_data.py -o /tmp/rvtools.xlsx  # custom output path
 ```
 
-The generated file contains 10 sheets (vHost, vInfo, vDisk, vUSB, vSnapshot, vCD,
-vNetwork, vSC_VMK, dvPort, dvSwitch) with ~44 VMs covering every risk type:
+The generated file contains 12 sheets (vHost, vInfo, vDisk, vUSB, vSnapshot, vCD,
+vNetwork, vSC_VMK, dvPort, dvSwitch, vDatastore, vMetaData) with ~44 VMs covering every risk type:
 emergency (clear-text passwords), blocking (RDM disks, shared disks, high vCPU/memory,
 HW version, standard switches, vUSB), warning (snapshots, suspended VMs, CD-ROMs,
 VMkernel networks, non-Intel hosts, VMware Tools, Fault Tolerance, large storage,

@@ -37,10 +37,17 @@ class AvsRvtoolsAnalyserPlugin:
     def get_mcp_tools(self) -> list[Callable[..., Any]] | None:
         from az_scout_avs_rvtools_analyser.tools import (
             analyze_rvtools_json,
+            analyze_rvtools_statistics,
+            convert_rvtools_excel_to_json,
             list_avs_migration_risks,
         )
 
-        return [list_avs_migration_risks, analyze_rvtools_json]
+        return [
+            list_avs_migration_risks,
+            convert_rvtools_excel_to_json,
+            analyze_rvtools_json,
+            analyze_rvtools_statistics,
+        ]
 
     def get_static_dir(self) -> Path | None:
         return _STATIC_DIR
@@ -61,9 +68,13 @@ class AvsRvtoolsAnalyserPlugin:
 
     def get_system_prompt_addendum(self) -> str | None:
         return (
-            "The `analyze_rvtools_json` tool analyses RVTools data for AVS migration "
-            "risks. Use it when users provide VMware/RVTools data. The "
-            "`list_avs_migration_risks` tool lists the 19 risk categories."
+            "The `convert_rvtools_excel_to_json` tool converts a local RVTools Excel "
+            "file to JSON. The `analyze_rvtools_json` tool analyses that JSON data for "
+            "AVS migration risks. The `analyze_rvtools_statistics` tool extracts "
+            "infrastructure statistics (VM counts, compute, storage, hosts, OS "
+            "distribution). Use `convert_rvtools_excel_to_json` first, then pass the "
+            "result to the analysis tools. The `list_avs_migration_risks` tool lists "
+            "the 19 risk categories."
         )
 
 

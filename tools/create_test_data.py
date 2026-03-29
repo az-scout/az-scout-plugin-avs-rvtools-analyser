@@ -234,6 +234,8 @@ HOSTS = [
         "cpu_model": "AMD EPYC 7402P",
         "datacenter": "DC-Primary",
         "cluster": "Cluster-01",
+        "cpu_usage": 45.2,
+        "mem_usage": 62.8,
     },
     {
         "name": "esxi-host-02",
@@ -241,6 +243,8 @@ HOSTS = [
         "cpu_model": "AMD EPYC 7543",
         "datacenter": "DC-Primary",
         "cluster": "Cluster-01",
+        "cpu_usage": 38.7,
+        "mem_usage": 55.4,
     },
     {
         "name": "esxi-host-03",
@@ -248,6 +252,8 @@ HOSTS = [
         "cpu_model": "Intel Xeon Gold 6254",
         "datacenter": "DC-Primary",
         "cluster": "Cluster-01",
+        "cpu_usage": 72.1,
+        "mem_usage": 81.3,
     },
     {
         "name": "esxi-host-04",
@@ -255,6 +261,8 @@ HOSTS = [
         "cpu_model": "Intel Xeon Gold 6348",
         "datacenter": "DC-Secondary",
         "cluster": "Cluster-02",
+        "cpu_usage": 29.5,
+        "mem_usage": 48.2,
     },
     {
         "name": "esxi-host-05",
@@ -262,6 +270,8 @@ HOSTS = [
         "cpu_model": "Intel Xeon Platinum 8380",
         "datacenter": "DC-Secondary",
         "cluster": "Cluster-02",
+        "cpu_usage": 15.8,
+        "mem_usage": 33.6,
     },
     {
         "name": "esxi-host-06",
@@ -269,6 +279,43 @@ HOSTS = [
         "cpu_model": "Intel Xeon Platinum 8480+",
         "datacenter": "DC-Tertiary",
         "cluster": "Cluster-03",
+        "cpu_usage": 8.3,
+        "mem_usage": 21.9,
+    },
+]
+
+DATASTORES = [
+    {
+        "name": "datastore1",
+        "type": "VMFS",
+        "capacity": 4194304,
+        "in_use": 3145728,
+        "datacenter": "DC-Primary",
+        "cluster": "Cluster-01",
+    },
+    {
+        "name": "datastore2",
+        "type": "VMFS",
+        "capacity": 2097152,
+        "in_use": 1572864,
+        "datacenter": "DC-Primary",
+        "cluster": "Cluster-01",
+    },
+    {
+        "name": "datastore3-nfs",
+        "type": "NFS",
+        "capacity": 8388608,
+        "in_use": 4194304,
+        "datacenter": "DC-Secondary",
+        "cluster": "Cluster-02",
+    },
+    {
+        "name": "shared-datastore",
+        "type": "VMFS",
+        "capacity": 1048576,
+        "in_use": 786432,
+        "datacenter": "DC-Primary",
+        "cluster": "Cluster-01",
     },
 ]
 
@@ -563,6 +610,8 @@ def build_vhost() -> pd.DataFrame:
                 "Datacenter": host["datacenter"],
                 "Cluster": host["cluster"],
                 "# VMs": vm_count,
+                "CPU usage %": host["cpu_usage"],
+                "Memory usage %": host["mem_usage"],
             }
         )
     return pd.DataFrame(data)
@@ -783,6 +832,22 @@ def build_dvswitch() -> pd.DataFrame:
     )
 
 
+def build_vdatastore() -> pd.DataFrame:
+    data = []
+    for ds in DATASTORES:
+        data.append(
+            {
+                "Name": ds["name"],
+                "Type": ds["type"],
+                "Capacity MiB": ds["capacity"],
+                "In Use MiB": ds["in_use"],
+                "Datacenter": ds["datacenter"],
+                "Cluster": ds["cluster"],
+            }
+        )
+    return pd.DataFrame(data)
+
+
 # =============================================================================
 # Main
 # =============================================================================
@@ -804,6 +869,8 @@ def create_test_data(output_path: Path | None = None) -> Path:
         "vSC_VMK": build_vsc_vmk(),
         "dvPort": build_dvport(),
         "dvSwitch": build_dvswitch(),
+        "vDatastore": build_vdatastore(),
+        "vMetaData": pd.DataFrame([{"RVTools version": "4.6.2", "Generated": "2026-03-29"}]),
     }
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
