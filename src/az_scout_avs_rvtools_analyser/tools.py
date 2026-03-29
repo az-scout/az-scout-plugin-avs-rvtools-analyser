@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import Field
 
@@ -33,13 +33,12 @@ def analyze_rvtools_json(
         Field(description="Exclude powered-off VMs from the analysis."),
     ] = False,
 ) -> str:
-    """Analyse RVTools JSON for AVS migration risks (STEP 2 — after convert).
+    """Analyse pre-parsed RVTools JSON for AVS migration risks.
 
-    Requires the JSON output from ``convert_rvtools_excel_to_json``.
-    Returns a comprehensive migration risk report covering 19 risk categories
-    including vUSB devices, risky disks, network switches, hardware versions,
-    shared disks, clear-text passwords, and more.
+    DO NOT use when the user provides an Excel file path — use
+    ``analyze_rvtools_file`` instead (single step, no JSON round-trip).
 
+    This tool accepts pre-parsed JSON only.
     Risk levels: emergency, blocking, warning, info.
     """
     import io
@@ -74,12 +73,12 @@ def analyze_rvtools_statistics(
         ),
     ],
 ) -> str:
-    """Extract infrastructure statistics from RVTools JSON (STEP 2 — after convert).
+    """Extract statistics from pre-parsed RVTools JSON.
 
-    Requires the JSON output from ``convert_rvtools_excel_to_json``.
-    Returns VM counts (on/off), total vCPUs, memory (GB), provisioned and
-    used storage (GB), disk count, ESXi host count with average CPU/memory
-    usage, datastore capacity/usage, and OS distribution.
+    DO NOT use when the user provides an Excel file path — use
+    ``rvtools_file_statistics`` instead (single step, no JSON round-trip).
+
+    This tool accepts pre-parsed JSON only.
     """
     import io
 
@@ -113,12 +112,13 @@ def convert_rvtools_excel_to_json(
         ),
     ],
 ) -> str:
-    """Convert a local RVTools Excel file to JSON (STEP 1 — call this first).
+    """Convert RVTools Excel to JSON (only for MCP clients, NOT for chat).
 
-    When a user provides an RVTools Excel file, always call this tool first
-    to convert it to JSON. Then pass the returned JSON string as the
-    ``json_data`` argument to ``analyze_rvtools_json`` (risk analysis) or
-    ``analyze_rvtools_statistics`` (infrastructure statistics).
+    DO NOT use this tool when the user provides an Excel file path.
+    Use ``analyze_rvtools_file`` or ``rvtools_file_statistics`` instead —
+    they read Excel files directly in a single step.
+
+    This tool exists only for external MCP clients that need raw JSON.
     """
     from pathlib import Path
 
@@ -214,3 +214,76 @@ _RELEVANT_COLUMNS: dict[str, list[str]] = {
     "vSC_VMK": ["Port Group"],
     "vUSB": ["Connected", "Device Type", "Powerstate", "VM"],
 }
+
+
+def _load_rvtools_excel(file_path: str) -> Any:
+    """Load and validate an RVTools Excel file, returning a pd.ExcelFile."""
+    from pathlib import Path
+
+    import pandas as pd
+
+    path = Path(file_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    if path.suffix.lower() not in (".xlsx", ".xls"):
+        raise ValueError(f"Unsupported file type: {path.suffix}. Use .xlsx or .xls")
+    return pd.ExcelFile(path)
+
+
+def analyze_rvtools_file(
+    file_path: Annotated[
+        str,
+        Field(
+            description=(
+                "Absolute path to a local RVTools Excel file (.xlsx or .xls). "
+                "The file will be read and analysed directly for AVS migration risks."
+            )
+        ),
+    ],
+    exclude_powered_off: Annotated[
+        bool,
+        Field(description="Exclude powered-off VMs from the analysis."),
+    ] = False,
+) -> str:
+    """Analyse RVTools Excel file for AVS migration risks (single step).
+
+    Reads the Excel file directly and returns a comprehensive migration risk
+    report. Preferred over the two-step convert + analyze_rvtools_json workflow.
+    """
+    from az_scout_avs_rvtools_analyser.risk_analysis import gather_all_risks
+
+    try:
+        excel = _load_rvtools_excel(file_path)
+    except (FileNotFoundError, ValueError) as exc:
+        return json.dumps({"error": str(exc)})
+
+    result = gather_all_risks(excel, exclude_powered_off=exclude_powered_off)
+    return json.dumps(result, indent=2, default=str)
+
+
+def rvtools_file_statistics(
+    file_path: Annotated[
+        str,
+        Field(
+            description=(
+                "Absolute path to a local RVTools Excel file (.xlsx or .xls). "
+                "The file will be read and statistics extracted directly."
+            )
+        ),
+    ],
+) -> str:
+    """Extract infrastructure statistics from RVTools Excel file (single step).
+
+    Reads the Excel file directly and returns VM counts, compute, storage,
+    host usage, datastore capacity, and OS distribution.
+    Preferred over the two-step convert + analyze_rvtools_statistics workflow.
+    """
+    from az_scout_avs_rvtools_analyser.statistics import gather_statistics
+
+    try:
+        excel = _load_rvtools_excel(file_path)
+    except (FileNotFoundError, ValueError) as exc:
+        return json.dumps({"error": str(exc)})
+
+    result = gather_statistics(excel)
+    return json.dumps(result, indent=2, default=str)
