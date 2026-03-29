@@ -36,14 +36,18 @@ class AvsRvtoolsAnalyserPlugin:
 
     def get_mcp_tools(self) -> list[Callable[..., Any]] | None:
         from az_scout_avs_rvtools_analyser.tools import (
+            analyze_rvtools_file,
             analyze_rvtools_json,
             analyze_rvtools_statistics,
             convert_rvtools_excel_to_json,
             list_avs_migration_risks,
+            rvtools_file_statistics,
         )
 
         return [
             list_avs_migration_risks,
+            analyze_rvtools_file,
+            rvtools_file_statistics,
             convert_rvtools_excel_to_json,
             analyze_rvtools_json,
             analyze_rvtools_statistics,
@@ -68,13 +72,14 @@ class AvsRvtoolsAnalyserPlugin:
 
     def get_system_prompt_addendum(self) -> str | None:
         return (
-            "The `convert_rvtools_excel_to_json` tool converts a local RVTools Excel "
-            "file to JSON. The `analyze_rvtools_json` tool analyses that JSON data for "
-            "AVS migration risks. The `analyze_rvtools_statistics` tool extracts "
-            "infrastructure statistics (VM counts, compute, storage, hosts, OS "
-            "distribution). Use `convert_rvtools_excel_to_json` first, then pass the "
-            "result to the analysis tools. The `list_avs_migration_risks` tool lists "
-            "the 19 risk categories."
+            "When a user provides a local RVTools Excel file, prefer the single-step "
+            "tools: `analyze_rvtools_file` for AVS migration risk analysis, and "
+            "`rvtools_file_statistics` for infrastructure statistics. These read the "
+            "file directly and avoid large JSON round-trips. "
+            "The two-step workflow (`convert_rvtools_excel_to_json` then "
+            "`analyze_rvtools_json` / `analyze_rvtools_statistics`) is available for "
+            "pre-parsed JSON data. `list_avs_migration_risks` lists the 19 risk "
+            "categories."
         )
 
 

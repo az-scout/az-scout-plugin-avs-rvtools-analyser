@@ -48,7 +48,7 @@ class TestPluginInterface:
 
         tools = plugin.get_mcp_tools()
         assert tools is not None
-        assert len(tools) == 4
+        assert len(tools) == 6
 
     def test_get_tabs_returns_tab(self) -> None:
         from az_scout_avs_rvtools_analyser import plugin
