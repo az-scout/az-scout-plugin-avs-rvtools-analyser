@@ -111,3 +111,50 @@ class TestAnalyzeUpload:
             files={"file": ("export.xlsx", xlsx, "application/vnd.ms-excel")},
         )
         assert resp.status_code == 200
+
+
+class TestStatsUpload:
+    def test_returns_statistics(self, client: TestClient) -> None:
+        xlsx = _make_xlsx(
+            vInfo=[
+                {
+                    "VM": "vm1",
+                    "Powerstate": "poweredOn",
+                    "CPUs": 4,
+                    "Memory": 8192,
+                    "Provisioned MiB": 102400,
+                    "In Use MiB": 51200,
+                    "OS according to the VMware Tools": "Windows",
+                },
+                {
+                    "VM": "vm2",
+                    "Powerstate": "poweredOff",
+                    "CPUs": 2,
+                    "Memory": 4096,
+                    "Provisioned MiB": 51200,
+                    "In Use MiB": 25600,
+                    "OS according to the VMware Tools": "Linux",
+                },
+            ],
+            vDisk=[{"VM": "vm1", "Disk": "d1"}, {"VM": "vm1", "Disk": "d2"}],
+            vHost=[{"Host": "esx1", "CPU usage %": 50.0, "Memory usage %": 70.0}],
+        )
+        resp = client.post(
+            "/plugins/avs-rvtools-analyser/stats-upload",
+            files={"file": ("export.xlsx", xlsx, "application/vnd.ms-excel")},
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["vms"]["total"] == 2
+        assert data["vms"]["powered_on"] == 1
+        assert data["compute"]["total_vcpus"] == 6
+        assert data["storage"]["disk_count"] == 2
+        assert data["hosts"]["count"] == 1
+        assert data["filename"] == "export.xlsx"
+
+    def test_rejects_wrong_extension(self, client: TestClient) -> None:
+        resp = client.post(
+            "/plugins/avs-rvtools-analyser/stats-upload",
+            files={"file": ("data.txt", b"hello", "text/plain")},
+        )
+        assert resp.status_code == 422

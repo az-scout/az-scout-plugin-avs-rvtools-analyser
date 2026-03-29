@@ -16,7 +16,9 @@ This is an **az-scout plugin** — a Python package that extends [az-scout](http
 ```
 src/az_scout_avs_rvtools_analyser/
 ├── __init__.py          # Plugin class + module-level `plugin` instance
+├── risk_analysis.py     # 19 migration risk detection functions + aggregation
 ├── routes.py            # FastAPI APIRouter (mounted at /plugins/avs-rvtools-analyser/)
+├── statistics.py        # Infrastructure statistics extraction (VMs, compute, storage, hosts, OS)
 ├── tools.py             # MCP tool functions (exposed on the az-scout MCP server)
 └── static/
     ├── css/
@@ -65,6 +67,10 @@ avs_rvtools_analyser = "az_scout_avs_rvtools_analyser:plugin"
 - The docstring becomes the tool description in the MCP server and AI chat.
 - Tools are automatically available in the AI chat assistant after plugin registration.
 - Keep tool functions stateless — use parameters, not global state.
+- **`_RELEVANT_COLUMNS` in `tools.py`** must stay in sync with `risk_analysis.py` and
+  `statistics.py`. When adding a new sheet or column reference in a risk detection
+  function or statistics extractor, also add it to the `_RELEVANT_COLUMNS` dict so
+  `convert_rvtools_excel_to_json` exports it.
 
 ## Azure ARM helpers
 

@@ -303,7 +303,9 @@ def detect_oracle_vms(excel: pd.ExcelFile) -> dict[str, Any]:
     col = "OS according to the VMware Tools"
     if col not in vinfo.columns:
         return _risk_result("detect_oracle_vms", "info", desc, alert, 0, [])
-    mask = vinfo[col].str.contains("Oracle", na=False)
+    mask = vinfo[col].str.contains("Oracle", na=False) & ~vinfo[col].str.contains(
+        "Solaris", na=False
+    )
     cols = [c for c in ["VM", col, "Powerstate", "CPUs", "Memory"] if c in vinfo.columns]
     data = vinfo[mask][cols].to_dict(orient="records")
     return _risk_result("detect_oracle_vms", "info", desc, alert, len(data), data)

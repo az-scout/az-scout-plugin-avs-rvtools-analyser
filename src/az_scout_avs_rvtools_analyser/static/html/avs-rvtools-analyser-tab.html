@@ -62,34 +62,63 @@
 
             <!-- Results -->
             <div id="rvtools-results" style="display:none">
-                <!-- File info -->
-                <div class="mb-3 small text-body-secondary" id="rvtools-result-meta"></div>
-
-                <!-- Summary cards row -->
-                <div class="row g-3 mb-4" id="rvtools-summary-cards"></div>
-
-                <!-- Risk distribution gauge -->
-                <div class="mb-4">
-                    <h6 class="text-body-secondary mb-2"><i class="bi bi-speedometer2"></i> Risk Distribution</h6>
-                    <div id="rvtools-risk-bar" class="rvtools-risk-bar"></div>
-                    <div id="rvtools-risk-legend" class="rvtools-risk-legend mt-2"></div>
+                <!-- File info + Print button -->
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="small text-body-secondary" id="rvtools-result-meta"></div>
+                    <button class="btn btn-outline-secondary btn-sm flex-shrink-0" id="rvtools-print-btn" title="Print / Save as PDF">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
                 </div>
 
-                <!-- Risk filter & export -->
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <h6 class="text-body-secondary mb-0"><i class="bi bi-list-check"></i> Risk Details</h6>
-                    <div class="d-flex align-items-center gap-2">
-                        <button class="btn btn-outline-secondary btn-sm" id="rvtools-export-csv" title="Export all data as CSV">
-                            <i class="bi bi-download"></i> CSV
+                <!-- Result tabs -->
+                <ul class="nav nav-tabs mb-3" id="rvtools-result-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="rvtools-tab-risks" data-bs-toggle="tab"
+                                data-bs-target="#rvtools-pane-risks" type="button" role="tab"
+                                aria-controls="rvtools-pane-risks" aria-selected="true">
+                            <i class="bi bi-shield-exclamation"></i> Migration Risks
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm" id="rvtools-print-btn" title="Print / Save as PDF">
-                            <i class="bi bi-printer"></i> Print
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="rvtools-tab-stats" data-bs-toggle="tab"
+                                data-bs-target="#rvtools-pane-stats" type="button" role="tab"
+                                aria-controls="rvtools-pane-stats" aria-selected="false">
+                            <i class="bi bi-bar-chart-line"></i> Statistics
                         </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="rvtools-result-tab-content">
+                    <!-- Risks tab pane -->
+                    <div class="tab-pane fade show active" id="rvtools-pane-risks" role="tabpanel" aria-labelledby="rvtools-tab-risks">
+                        <!-- Summary cards row -->
+                        <div class="row g-3 mb-4" id="rvtools-summary-cards"></div>
+
+                        <!-- Risk distribution gauge -->
+                        <div class="mb-4">
+                            <h6 class="text-body-secondary mb-2"><i class="bi bi-speedometer2"></i> Risk Distribution</h6>
+                            <div id="rvtools-risk-bar" class="rvtools-risk-bar"></div>
+                            <div id="rvtools-risk-legend" class="rvtools-risk-legend mt-2"></div>
+                        </div>
+
+                        <!-- Risk filter -->
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h6 class="text-body-secondary mb-0"><i class="bi bi-list-check"></i> Risk Details</h6>
+                        </div>
+
+                        <!-- Risk cards accordion -->
+                        <div class="accordion" id="rvtools-risk-accordion"></div>
+                    </div>
+
+                    <!-- Statistics tab pane -->
+                    <div class="tab-pane fade" id="rvtools-pane-stats" role="tabpanel" aria-labelledby="rvtools-tab-stats">
+                        <div id="rvtools-stats-loading" class="text-center py-4">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                            <p class="small text-body-secondary mt-2">Loading statistics…</p>
+                        </div>
+                        <div id="rvtools-stats-content" style="display:none"></div>
                     </div>
                 </div>
-
-                <!-- Risk cards accordion -->
-                <div class="accordion" id="rvtools-risk-accordion"></div>
             </div>
         </div>
     </div>
