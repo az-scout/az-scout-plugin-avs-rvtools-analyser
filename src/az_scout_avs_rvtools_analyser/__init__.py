@@ -6,14 +6,17 @@ vUSB devices, risky disks, network switches, hardware versions,
 shared disks, clear-text passwords, and more.
 """
 
+from __future__ import annotations
+
 from collections.abc import Callable
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _pkg_version
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from az_scout.plugin_api import ChatMode, TabDefinition
-from fastapi import APIRouter
+if TYPE_CHECKING:
+    from az_scout.plugin_api import ChatMode, TabDefinition
+    from fastapi import APIRouter
 
 _STATIC_DIR = Path(__file__).parent / "static"
 
@@ -57,6 +60,8 @@ class AvsRvtoolsAnalyserPlugin:
         return _STATIC_DIR
 
     def get_tabs(self) -> list[TabDefinition] | None:
+        from az_scout.plugin_api import TabDefinition
+
         return [
             TabDefinition(
                 id="avs-rvtools-analyser",
