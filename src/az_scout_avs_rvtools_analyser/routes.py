@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import io
 from typing import Any
 
@@ -74,11 +75,13 @@ async def analyze_upload(
         exclude_powered_off,
     )
 
-    excel = _parse_excel(contents)
+    excel = await asyncio.to_thread(_parse_excel, contents)
     logger.debug("Parsed Excel with %d sheets: %s", len(excel.sheet_names), excel.sheet_names)
 
     try:
-        result = gather_all_risks(excel, exclude_powered_off=exclude_powered_off)
+        result = await asyncio.to_thread(
+            gather_all_risks, excel, exclude_powered_off=exclude_powered_off
+        )
     except Exception as exc:
         raise PluginError(f"Analysis failed: {exc}") from exc
 
@@ -111,13 +114,13 @@ async def stats_upload(
         exclude_powered_off,
     )
 
-    excel = _parse_excel(contents)
+    excel = await asyncio.to_thread(_parse_excel, contents)
 
     if exclude_powered_off:
         _filter_powered_off(excel)
 
     try:
-        result = gather_statistics(excel)
+        result = await asyncio.to_thread(gather_statistics, excel)
     except Exception as exc:
         raise PluginError(f"Statistics extraction failed: {exc}") from exc
 
