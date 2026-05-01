@@ -242,7 +242,7 @@
                                 <p class="small text-body-secondary mb-0">${escHtml(risk.risk_info?.description || "")}</p>
                                 <div class="d-flex gap-1 flex-shrink-0 ms-2">${csvBtn}${aiBtn}</div>
                             </div>
-                            ${alertMsg ? `<div class="rvtools-alert-message">${alertMsg}</div>` : ""}
+                            ${alertMsg ? `<div class="rvtools-alert-message">${sanitizeAlertHtml(alertMsg)}</div>` : ""}
                             ${dataHtml}
                         </div>
                     </div>
@@ -737,6 +737,23 @@ ${clone.outerHTML}
             const d = document.createElement("div");
             d.textContent = s;
             return d.innerHTML;
+        }
+
+        function sanitizeAlertHtml(html) {
+            const allowed = new Set(["br", "strong", "em", "b", "i", "ul", "ol", "li", "p"]);
+            const safeAttrs = new Set(["class", "id"]);
+            const tmp = document.createElement("div");
+            tmp.innerHTML = html;
+            tmp.querySelectorAll("*").forEach(el => {
+                if (!allowed.has(el.tagName.toLowerCase())) {
+                    el.replaceWith(document.createTextNode(el.textContent));
+                } else {
+                    [...el.attributes].forEach(attr => {
+                        if (!safeAttrs.has(attr.name.toLowerCase())) el.removeAttribute(attr.name);
+                    });
+                }
+            });
+            return tmp.innerHTML;
         }
 
         function formatBytes(b) {

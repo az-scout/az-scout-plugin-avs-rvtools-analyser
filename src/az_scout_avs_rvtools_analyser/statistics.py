@@ -14,11 +14,20 @@ if TYPE_CHECKING:
 MIB_TO_GB = 1 / 1024
 
 
-def gather_statistics(excel: pd.ExcelFile) -> dict[str, Any]:
+def gather_statistics(excel: pd.ExcelFile, exclude_powered_off: bool = False) -> dict[str, Any]:
     """Extract infrastructure statistics from an RVTools Excel file.
+
+    Args:
+        excel: Parsed RVTools Excel file.
+        exclude_powered_off: If True, filter powered-off VMs before extracting statistics.
 
     Returns a dict with keys: vms, compute, storage, hosts, os_distribution.
     """
+    if exclude_powered_off:
+        from az_scout_avs_rvtools_analyser.risk_analysis import filter_powered_off
+
+        filter_powered_off(excel)
+
     import pandas
 
     stats: dict[str, Any] = {
