@@ -7,7 +7,7 @@ Each risk detection function examines specific sheets and returns structured res
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Final
 
 from az_scout_avs_rvtools_analyser._log import logger
 
@@ -740,7 +740,7 @@ def detect_fault_tolerance_vms(excel: pd.ExcelFile) -> dict[str, Any]:
 # Aggregation
 # ---------------------------------------------------------------------------
 
-RISK_FUNCTIONS = [
+RISK_FUNCTIONS: Final[list[Any]] = [
     detect_esx_versions,
     detect_vusb_devices,
     detect_risky_disks,
@@ -808,7 +808,7 @@ def gather_all_risks(
     """
     if exclude_powered_off:
         logger.debug("Filtering powered-off VMs from analysis")
-        _filter_powered_off(excel)
+        filter_powered_off(excel)
 
     results: dict[str, Any] = {}
     summary: dict[str, int] = {
@@ -849,7 +849,7 @@ def gather_all_risks(
     return {"summary": summary, "risks": results}
 
 
-def _filter_powered_off(excel: pd.ExcelFile) -> None:
+def filter_powered_off(excel: pd.ExcelFile) -> None:
     """Pre-filter powered-off VMs from cached sheet data.
 
     This modifies the ExcelFile's internal cache so subsequent sheet_names

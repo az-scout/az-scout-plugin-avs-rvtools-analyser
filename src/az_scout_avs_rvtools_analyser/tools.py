@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Annotated, Any
+from typing import Annotated, Any, Final
 
 from pydantic import Field
 
@@ -152,7 +152,7 @@ def convert_rvtools_excel_to_json(
 
 
 # Sheets and columns used by risk_analysis.py and statistics.py
-_RELEVANT_COLUMNS: dict[str, list[str]] = {
+_RELEVANT_COLUMNS: Final[dict[str, list[str]]] = {
     "dvPort": [
         "Allow Promiscuous",
         "Forged Transmits",

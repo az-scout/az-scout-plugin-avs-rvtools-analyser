@@ -11,7 +11,6 @@ from fastapi import APIRouter, UploadFile
 
 from az_scout_avs_rvtools_analyser._log import logger
 from az_scout_avs_rvtools_analyser.risk_analysis import (
-    _filter_powered_off,
     gather_all_risks,
     get_available_risks,
 )
@@ -116,11 +115,8 @@ async def stats_upload(
 
     excel = await asyncio.to_thread(_parse_excel, contents)
 
-    if exclude_powered_off:
-        _filter_powered_off(excel)
-
     try:
-        result = await asyncio.to_thread(gather_statistics, excel)
+        result = await asyncio.to_thread(gather_statistics, excel, exclude_powered_off)
     except Exception as exc:
         raise PluginError(f"Statistics extraction failed: {exc}") from exc
 
