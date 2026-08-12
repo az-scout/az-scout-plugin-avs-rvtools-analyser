@@ -110,10 +110,10 @@ def detect_esx_versions(excel: pd.ExcelFile) -> dict[str, Any]:
             v = m.group(1)
             if v < ESX_ERROR_THRESHOLD:
                 risk = "blocking"
-                card_risk = "danger"
+                card_risk = "blocking"
             elif v < ESX_WARNING_THRESHOLD:
                 risk = "warning"
-                if card_risk != "danger":
+                if card_risk != "blocking":
                     card_risk = "warning"
         rows.append({"ESX Version": str(ver_str), "Count": int(cnt), "Risk Level": risk})
 
